@@ -9,7 +9,21 @@
             <script type="text/javascript">
 
             function cb(data) {
-                    console.log("cb: " + JSON.stringify(data));
+                    //console.log("cb: " + JSON.stringify(data));
+
+                    var name = $("<p>").text(data.businesses[0].name);
+                    var ratingPic = $("<img>").attr("src",data.businesses[0].rating_img_url_large);
+                    var location = $("<p>").html(data.businesses[0].location.display_address[0]  + "<br/>" + data.businesses[0].location.display_address[1] + "<br/>" + data.businesses[0].location.display_address[2]);
+                 	var snippet = $("<p>").text(data.businesses[0].snippet_text);
+                 	var businessPic = $("<img>").attr("src",data.businesses[0].image_url);
+                 	var myOutput = [name,ratingPic,location,snippet,businessPic];
+
+                 	for(var out of myOutput){
+                 		$("#page").append(out);
+                 	}
+
+                    
+
             }
 
                 var auth = {
@@ -29,6 +43,7 @@
 
                 var terms = 'food';
                 var near = 'San+Francisco';
+                var limit = 1;
 
                 var accessor = {
                     consumerSecret : auth.consumerSecret,
@@ -38,6 +53,7 @@
                 var parameters = [];
                 parameters.push(['term', terms]);
                 parameters.push(['location', near]);
+                parameters.push(['limit', limit]);
                 parameters.push(['callback', 'cb']);
                 parameters.push(['oauth_consumer_key', auth.consumerKey]);
                 parameters.push(['oauth_consumer_secret', auth.consumerSecret]);
@@ -73,5 +89,8 @@
 
             </script>
         </head>
-        <body></body>
+        <body>
+        	
+        	<div id="page"></div>
+        </body>
     </html>
