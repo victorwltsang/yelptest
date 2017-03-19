@@ -13,6 +13,7 @@
 
         <script id="yelp-template" type="x-handlebars-template">
           {{#each businesses}}
+          <div>
           <h2>{{name}}</h2>
           <h4>{{snippet_text}} <a href="#"> read more</a></h4>
           <img src="{{rating_img_url_large}}" />
@@ -22,6 +23,7 @@
             {{/each}}
           </div>
           <img src="{{image_url}}" />
+          </div>
           {{/each}}
 
 
@@ -63,7 +65,7 @@
 
             var terms = 'food';
             var near = 'San+Francisco';
-            var limit = 1;
+            var limit = 10;
 
             var accessor = {
                 consumerSecret: auth.consumerSecret,
