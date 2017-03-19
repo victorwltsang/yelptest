@@ -1,96 +1,110 @@
 <html>
-        <head>
+
+    <head>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
-            <title>Yelp OAuth Example</title>
-            <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <title>Yelp OAuth Example</title>
+
+    </head>
+
+    <body>
+
+        <div id="yelp-container"></div>
+
+        <script id="yelp-template" type="x-handlebars-template">
+          {{#each businesses}}
+          <h2>{{name}}</h2>
+          <h4>{{snippet_text}} <a href="#"> read more</a></h4>
+          <img src="{{rating_img_url_large}}" />
+          <div>
+            {{#each location.display_address}}
+              <p>{{this}}</p>
+            {{/each}}
+          </div>
+          <img src="{{image_url}}" />
+          {{/each}}
+
+
+        </script>
+
+
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
         <script type="text/javascript" src="OAuth.js"></script>
-            <script type="text/javascript" src="SHA1.js"></script>
-            <script type="text/javascript">
+        <script type="text/javascript" src="SHA1.js"></script>
+        <script type="text/javascript">
+            function yelpCallback(yelpData) {
 
-            function cb(data) {
-                    //console.log("cb: " + JSON.stringify(data));
+            console.log(yelpData);
+            var rawTemplate = $("#yelp-template").html();
+            var compiledTemplate = Handlebars.compile(rawTemplate);
+            var generatedHTML = compiledTemplate(yelpData);
 
-                    var name = $("<p>").text(data.businesses[0].name);
-                    var ratingPic = $("<img>").attr("src",data.businesses[0].rating_img_url_large);
-                    var location = $("<p>").html(data.businesses[0].location.display_address[0]  + "<br/>" + data.businesses[0].location.display_address[1] + "<br/>" + data.businesses[0].location.display_address[2]);
-                 	var snippet = $("<p>").text(data.businesses[0].snippet_text);
-                 	var businessPic = $("<img>").attr("src",data.businesses[0].image_url);
-                 	var myOutput = [name,ratingPic,location,snippet,businessPic];
+            $("#yelp-container").html(generatedHTML);
 
-                 	for(var out of myOutput){
-                 		$("#page").append(out);
-                 	}
-
-                    
 
             }
 
-                var auth = {
-                    //
-                    // Update with your auth tokens.
-                    //
-                    consumerKey : "KPxFaVMRGGEaRTwZGNz9hg",
-                    consumerSecret : "Aj3ersH4IUecJKWZQUQ9Vr0l4PQ",
-                    accessToken : "gobeLA8R3DdMcMjVCJYPvMEkjx-KLFog",
-                    // This example is a proof of concept, for how to use the Yelp v2 API with javascript.
-                    // You wouldn't actually want to expose your access token secret like this in a real application.
-                    accessTokenSecret : "BL8c0l-5KqIPAJJG8WFnCVZ-3rw",
-                    serviceProvider : {
-                        signatureMethod : "HMAC-SHA1"
-                    }
-                };
+            var auth = {
+                //
+                // Update with your auth tokens.
+                //
+                consumerKey: "KPxFaVMRGGEaRTwZGNz9hg",
+                consumerSecret: "Aj3ersH4IUecJKWZQUQ9Vr0l4PQ",
+                accessToken: "gobeLA8R3DdMcMjVCJYPvMEkjx-KLFog",
+                // This example is a proof of concept, for how to use the Yelp v2 API with javascript.
+                // You wouldn't actually want to expose your access token secret like this in a real application.
+                accessTokenSecret: "BL8c0l-5KqIPAJJG8WFnCVZ-3rw",
+                serviceProvider: {
+                    signatureMethod: "HMAC-SHA1"
+                }
+            };
 
-                var terms = 'food';
-                var near = 'San+Francisco';
-                var limit = 1;
+            var terms = 'food';
+            var near = 'San+Francisco';
+            var limit = 1;
 
-                var accessor = {
-                    consumerSecret : auth.consumerSecret,
-                    tokenSecret : auth.accessTokenSecret
-                };
+            var accessor = {
+                consumerSecret: auth.consumerSecret,
+                tokenSecret: auth.accessTokenSecret
+            };
 
-                var parameters = [];
-                parameters.push(['term', terms]);
-                parameters.push(['location', near]);
-                parameters.push(['limit', limit]);
-                parameters.push(['callback', 'cb']);
-                parameters.push(['oauth_consumer_key', auth.consumerKey]);
-                parameters.push(['oauth_consumer_secret', auth.consumerSecret]);
-                parameters.push(['oauth_token', auth.accessToken]);
-                parameters.push(['oauth_signature_method', 'HMAC-SHA1']);
+            var parameters = [];
+            parameters.push(['term', terms]);
+            parameters.push(['location', near]);
+            parameters.push(['limit', limit]);
+            parameters.push(['callback', 'cb']);
+            parameters.push(['oauth_consumer_key', auth.consumerKey]);
+            parameters.push(['oauth_consumer_secret', auth.consumerSecret]);
+            parameters.push(['oauth_token', auth.accessToken]);
+            parameters.push(['oauth_signature_method', 'HMAC-SHA1']);
 
-                var message = {
-                    'action' : 'https://api.yelp.com/v2/search',
-                    'method' : 'GET',
-                    'parameters' : parameters
-                };
+            var message = {
+                'action': 'https://api.yelp.com/v2/search',
+                'method': 'GET',
+                'parameters': parameters
+            };
 
-                OAuth.setTimestampAndNonce(message);
-                OAuth.SignatureMethod.sign(message, accessor);
+            OAuth.setTimestampAndNonce(message);
+            OAuth.SignatureMethod.sign(message, accessor);
 
-                var parameterMap = OAuth.getParameterMap(message.parameters);
+            var parameterMap = OAuth.getParameterMap(message.parameters);
 
-                $.ajax({
-                    'url' : message.action,
-                    'data' : parameterMap,
-                    'dataType' : 'jsonp',
-                    'jsonpCallback' : 'cb',
+            $.ajax({
+                    'url': message.action,
+                    'data': parameterMap,
+                    'dataType': 'jsonp',
+                    'jsonpCallback': 'yelpCallback',
                     'cache': true
                 })
                 .done(function(data, textStatus, jqXHR) {
-                        console.log('success[' + data + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
-                    }
-                )
+                    console.log('success[' + data + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
+                })
                 .fail(function(jqXHR, textStatus, errorThrown) {
-                                    console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
-                        }
-                );
+                    console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
+                });
+        </script>
+    </body>
 
-            </script>
-        </head>
-        <body>
-        	
-        	<div id="page"></div>
-        </body>
-    </html>
+</html>
