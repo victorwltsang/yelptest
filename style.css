@@ -1,0 +1,33 @@
+.row-spacing {
+    margin: 40px 0;
+}
+
+.snippet-spacing {
+    margin-top: 10px;
+}
+
+.food-cat-spacing {
+    margin-top: 5px;
+}
+
+.link-size {
+    font-size: 18px;
+}
+
+.rating-img {
+    width: 130px;
+    height: auto;
+}
+
+.snippet-img {
+    height: 40px;
+    width: 40px;
+}
+
+.display-block {
+    display: block;
+}
+
+.food-cat:last-child {
+    display: none;
+}

@@ -4,27 +4,56 @@
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
         <title>Yelp OAuth Example</title>
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
     </head>
 
     <body>
-
-        <div id="yelp-container"></div>
+        <div class="container">
+            <div id="result"></div>
+        </div>
 
         <script id="yelp-template" type="x-handlebars-template">
-          {{#each businesses}}
-          <div>
-          <h2>{{name}}</h2>
-          <h4>{{snippet_text}} <a href="#"> read more</a></h4>
-          <img src="{{rating_img_url_large}}" />
-          <div>
-            {{#each location.display_address}}
-              <p>{{this}}</p>
-            {{/each}}
-          </div>
-          <img src="{{image_url}}" />
-          </div>
-          {{/each}}
+            {{#each businesses}}
+            <div class="row row-spacing">
+                <div class="col-sm-6 media">
+
+                    <div class="media-left">
+                        <img class="img-rounded" src="{{image_url}}" />
+                    </div>
+                    <div class="media-body">
+                        <a class="display-block link-size" href="{{url}}" target="_blank" alt="See on Yelp!">{{name}}</a>
+
+                        <img class="rating-img" src="{{rating_img_url_large}}" />
+                        <span class="small">{{review_count}} reviews</span>
+                        <div class="food-cat-spacing">
+                            {{#each categories}}
+                            <span class="food-cat">{{this.[0]}}</span>
+                            <span class="food-cat">,</span> {{/each}}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <p>{{location.neighborhoods}}</p>
+                    {{#each location.display_address}}
+                    <span class="display-block">{{this}}</span> {{/each}}
+                    <span class="display-block">{{phone}}</span>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-sm-12 snippet-spacing">
+                    <div class="media-left">
+                        <img class="snippet-img img-rounded" src="{{snippet_image_url}}" />
+                    </div>
+                    <div class="media-body">
+                        <p class="">{{snippet_text}}
+                            <a href="{{url}}" target="_blank"> read more </a>
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+            <hr> {{/each}}
 
 
         </script>
@@ -35,78 +64,8 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
         <script type="text/javascript" src="OAuth.js"></script>
         <script type="text/javascript" src="SHA1.js"></script>
-        <script type="text/javascript">
-            function yelpCallback(yelpData) {
+        <script type="text/javascript" src="dine-out.js"></script>
 
-            console.log(yelpData);
-            var rawTemplate = $("#yelp-template").html();
-            var compiledTemplate = Handlebars.compile(rawTemplate);
-            var generatedHTML = compiledTemplate(yelpData);
-
-            $("#yelp-container").html(generatedHTML);
-
-
-            }
-
-            var auth = {
-                //
-                // Update with your auth tokens.
-                //
-                consumerKey: "KPxFaVMRGGEaRTwZGNz9hg",
-                consumerSecret: "Aj3ersH4IUecJKWZQUQ9Vr0l4PQ",
-                accessToken: "gobeLA8R3DdMcMjVCJYPvMEkjx-KLFog",
-                // This example is a proof of concept, for how to use the Yelp v2 API with javascript.
-                // You wouldn't actually want to expose your access token secret like this in a real application.
-                accessTokenSecret: "BL8c0l-5KqIPAJJG8WFnCVZ-3rw",
-                serviceProvider: {
-                    signatureMethod: "HMAC-SHA1"
-                }
-            };
-
-            var terms = 'food';
-            var near = 'San+Francisco';
-            var limit = 10;
-
-            var accessor = {
-                consumerSecret: auth.consumerSecret,
-                tokenSecret: auth.accessTokenSecret
-            };
-
-            var parameters = [];
-            parameters.push(['term', terms]);
-            parameters.push(['location', near]);
-            parameters.push(['limit', limit]);
-            parameters.push(['callback', 'cb']);
-            parameters.push(['oauth_consumer_key', auth.consumerKey]);
-            parameters.push(['oauth_consumer_secret', auth.consumerSecret]);
-            parameters.push(['oauth_token', auth.accessToken]);
-            parameters.push(['oauth_signature_method', 'HMAC-SHA1']);
-
-            var message = {
-                'action': 'https://api.yelp.com/v2/search',
-                'method': 'GET',
-                'parameters': parameters
-            };
-
-            OAuth.setTimestampAndNonce(message);
-            OAuth.SignatureMethod.sign(message, accessor);
-
-            var parameterMap = OAuth.getParameterMap(message.parameters);
-
-            $.ajax({
-                    'url': message.action,
-                    'data': parameterMap,
-                    'dataType': 'jsonp',
-                    'jsonpCallback': 'yelpCallback',
-                    'cache': true
-                })
-                .done(function(data, textStatus, jqXHR) {
-                    console.log('success[' + data + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
-                })
-                .fail(function(jqXHR, textStatus, errorThrown) {
-                    console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
-                });
-        </script>
     </body>
 
 </html>
